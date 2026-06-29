@@ -1,54 +1,50 @@
+import dictionarys
+import data_functions
+import calculator_functions
+import business_logic
 # This program calculates the final price of meat
 # based on the type of meat, the supplier price and the amount cooked off
 # for a barbecue catering company
 
-dictionary= {
-    "brisket": {"ounces_per_person": 5, "oz_per_person_both" : 3, "supplier_price": 9.12, "cooked_off_weight": .50},
-    "pork" : {"ounces_per_person": 4, "oz_per_person_both": 3, "supplier_price" : 2.20, "cooked_off_weight": .50},
-    "chicken": {"ounces_per_person": 4, "oz_per_person_both": 2.50, "supplier_price": 2.50, "cooked_off_weight": .70}
-}
-#========================
-# API FUNCTIONS
-#========================
-#provides the data of the meat from the Dictonary
-def meat_api(meat_type):
-    if meat_type in dictionary:   
-        return dictionary[meat_type]
-#provides avalible meat options
-def meat_api_list():
-    return dictionary.keys()
-#validates the users meat type
-def meat_api_validation(meat_type):
-    if meat_type in dictionary:
-        return True
-    else:
-        return False
-#=========================
-#  CALCULATOR FUNCTIONS
-#=========================
-#estimates the amount of cooked meat for an order
-def estimate_meat_needed( number_of_people, ounces_per_person):
+# gets the input for the sides
+def ask_sides():
+    user_sides = []
+    while True:
+     try: 
+        number_of_sides = int(input("How many sides do you want? please insert a value between 1 and 4 "))
+        if number_of_sides > 0 and number_of_sides < 5:
+            break
+     except ValueError:
+         print("incorrect value please put a whole number between 1 and 4")
     
-    total_ounces = ounces_per_person * number_of_people
-    total_cooked_pounds = total_ounces /16
-    return total_cooked_pounds
-#generate the total price by marking up the supplier cost  
-def markup_calc( supplier_cost, markup_percent):
-    markup_percent = markup_percent +1
-    total_price = supplier_cost * markup_percent
-    return total_price
-#estimates the amount of raw meat needed and the supplier cost
-def calculator(number_of_people, meat_type, oz_per_person):
-    
-        total_cooked_pounds= estimate_meat_needed( number_of_people, oz_per_person)
-        raw_weight = total_cooked_pounds/ meat_type["cooked_off_weight"]
-        raw_weight= round(raw_weight, 2)
-        supplier_cost = raw_weight * meat_type["supplier_price"]
-        return supplier_cost, raw_weight
-    
+    for _ in range(number_of_sides):
+        while True:
+            print(data_functions.list_sides())
+            side_type= input("What is your side? ").strip().lower()
+            side_validation = data_functions.side_validation(side_type)
+            if side_validation == True:
+                break
+            else:
+                print("Error please enter one of the listed sides")
+      
+        side_data = data_functions.set_data(side_type)
+        user_sides.append(side_data)
+    return user_sides
 
+def print_sides(order):
+    for sides in order["sides"]:
+        print(f"The side is {sides['name']}\n",
+            f"The number of half pans needed is {sides['number_of_half']}\n",
+            f"The price for just this side is ${sides['price']}")
+        
+def print_totals(order):
+    print(f"The total side price is ${round(order['totals']['side_total'], 2)}\n",
+          f"The total meat price with markup is ${round(order['totals']['meat_total'],2 )}\n",
+          f"The final price for the order is ${round(order['totals']['final_price'],2)}")
 
 def main():
+    order= data_functions.copy_order()
+   
    #ask how many meats in the order
     while True:
         try:
@@ -61,10 +57,10 @@ def main():
   
    # asking what the first meat is
     print("What type of meat do you want?")
-    print(meat_api_list())
+    print(data_functions.list_meat())
     while True:
         meat_one = (input("Please type the type of meat you want ").strip().lower()) 
-        validation_one= meat_api_validation(meat_one)
+        validation_one= data_functions.meat_validation(meat_one)
         if validation_one == True:
             break
         else:
@@ -80,7 +76,7 @@ def main():
         except ValueError:
            print("Error incorect value")
     
-    meat_data_one = meat_api(meat_one)
+    meat_data_one = data_functions.set_data(meat_one)
     #ask for the markup percent 
     while True:
         try:
@@ -91,22 +87,30 @@ def main():
             print("Error incorect value please put your percentege as a decimal")
     #if there is only one meat calculate the final cost and terminate the program
     if meat_number == 1:
-        supplier_cost, raw_weight = calculator(number_of_people, meat_data_one, meat_data_one["ounces_per_person"])
-        final_cost = markup_calc(supplier_cost, markup_percent)
-        print(f"The amount of raw meat needed is {raw_weight}\n",
-              f"The total supplier cost before is {supplier_cost}\n",
-              "The total cost for the customer is $", round(final_cost, 2))
+        supplier_cost, raw_weight = calculator_functions.calculator(number_of_people, meat_data_one, meat_data_one["ounces_per_person"])
+        data_functions.append_order_meats(order,meat_one,raw_weight,supplier_cost)
+        sides_data  = ask_sides()
+        side_total, order = business_logic.sides_logic(sides_data, number_of_people,order)
+        
+        final_cost, meat_price = (calculator_functions.markup_calc(supplier_cost, markup_percent, side_total))
+        order = data_functions.append_order_totals(order, meat_price, side_total, final_cost )
+        print_sides(order)
+        
+        print(f"The amount of raw meat needed is {round(order['meats'][meat_one]["raw_weight"],2)}\n",
+              f"The total cost for you is {round(order["meats"][meat_one]["supplier_cost"], 2)}\n",)
+        print_totals(order)
+        
 
         return
     #ask for the second meat 
     while True:
         meat_two = input("What is the second meat? ").strip().lower()
-        validation_two = meat_api_validation(meat_two)
+        validation_two = data_functions.meat_validation(meat_two)
         if validation_two == True:
             break
         else:
             print("Not a valid meat type")
-    meat_data_two = meat_api(meat_two)
+    meat_data_two = data_functions.set_data(meat_two)
     #ask for the serving style
     while True:
         serving_type = input("Is everyone having both meats or one or the other? Please answer either both or one ").strip().lower()
@@ -116,23 +120,39 @@ def main():
             print("please inter either both or one ")
    #if the serving style is both then use oz per person both instead of ounces per person then terminate the program
     if serving_type == "both":
-        supplier_cost, raw_weight= calculator(number_of_people, meat_data_one, meat_data_one["oz_per_person_both"])
-        supplier_cost_one, raw_weight_2 = calculator (number_of_people,  meat_data_two, meat_data_two["oz_per_person_both"])
+        supplier_cost, raw_weight= calculator_functions.calculator(number_of_people, meat_data_one, meat_data_one["oz_per_person_both"])
+        supplier_cost_one, raw_weight_2 = calculator_functions.calculator (number_of_people,  meat_data_two, meat_data_two["oz_per_person_both"])
         total_cost= supplier_cost + supplier_cost_one
-        final_cost = markup_calc(total_cost, markup_percent)
-        print(f"The amount of raw meat you need is {raw_weight} of {meat_one} and {raw_weight_2} of {meat_two}\n",
-              f"The total cost to you is ${total_cost}\n",
-              f"The total cost for the customer is $ {round(final_cost, 2)}")
+        sides_data  = ask_sides()
+        side_total, order = business_logic.sides_logic(sides_data, number_of_people,order)
+        
+        order = data_functions.append_order_meats(order, meat_one,raw_weight, supplier_cost)
+        order = data_functions.append_order_meats(order, meat_two, raw_weight_2 ,supplier_cost_one)
+    
+        final_cost, meat_total = (calculator_functions.markup_calc(total_cost, markup_percent, side_total)) 
+        order = data_functions.append_order_totals(order, meat_total, side_total, final_cost)
+        print_sides(order)
+        print_totals(order)
+
+        print(f"The amount of raw meat you need is {order['meats'][meat_one]['raw_weight']} lbs. of {order['meats'][meat_one]['name']} and {order['meats'][meat_two]['raw_weight']} lbs. of {order['meats'][meat_two]['name']}\n")
         return
+        
+        
     #if the serving style is one then just use ounces per person then terminate the program
     else:
-        supplier_cost, raw_weight= calculator(number_of_people, meat_data_one, meat_data_one["ounces_per_person"])
-        supplier_cost_one, raw_weight_2 = calculator (number_of_people,  meat_data_two, meat_data_two["ounces_per_person"])
+        supplier_cost, raw_weight= calculator_functions.calculator(number_of_people, meat_data_one, meat_data_one["ounces_per_person"])
+        supplier_cost_one, raw_weight_2 = calculator_functions.calculator (number_of_people,  meat_data_two, meat_data_two["ounces_per_person"])
         total_cost= supplier_cost + supplier_cost_one
-        final_cost = markup_calc(total_cost, markup_percent)
-        print(f"The amount of raw meat you need is {raw_weight} of {meat_one} and {raw_weight_2} of {meat_two}\n",
-              f"The total cost to you is ${total_cost}\n",
-              f"The total cost for the customer is $ {round(final_cost, 2)}")
+        sides_data  = ask_sides()
+        side_total,order = business_logic.sides_logic(sides_data, number_of_people,order)
+        final_cost, meat_total = (calculator_functions.markup_calc(total_cost, markup_percent, side_total)) 
+        order = data_functions.append_order_totals(order, meat_total, side_total, final_cost)
+        order = data_functions.append_order_meats(order, meat_one,raw_weight, supplier_cost)
+        order = data_functions.append_order_meats(order, meat_two, raw_weight_2 ,supplier_cost_one)
+        print_sides(order)
+        print_totals(order)
+        print(f"The amount of raw meat you need is {order['meats'][meat_one]['raw_weight']} lbs. of {order['meats'][meat_one]['name']} and {order['meats'][meat_two]['raw_weight']} lbs of {order['meats'][meat_two]['name']}\n")
+        return
         
 
 
