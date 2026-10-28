@@ -30,7 +30,8 @@ This project has evolved as I learned more about programming database design and
 
 Project Demonstration
 
-A demonstration video and screenshots will be added to showcase the application.
+A demonstration video and screenshots will be added to showcase the application
+https://www.youtube.com/watch?v=02Xx2Qo79hI
 
 The application currently runs locally. The GitHub repository contains the source code.
 # Version History
