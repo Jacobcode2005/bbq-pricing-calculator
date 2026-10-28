@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Lookup Past Orders</title>
+        <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    </head>
+    <body>
+        <button id="past_return">Back to Index</button><br><br>
+        <h1>To look up a past order please enter your order number and press submit</h1>
+        <label for="order_number">Order Number: </label>
+        <select id="order_number">
+            <option value=""></option>
+            <!-- Populate the dropdown with saved order IDs retrieved from SQLite through Flask. -->
+            {% for number in order_number %}
+            <option value="{{number}}">{{number}}</option>
+            {% endfor %}
+
+        </select>
+        <button id="Submit">Submit</button><br>
+        <button id="recent_order">Most Recent Order</button><br>
+        <h2>Your Order</h2><br><br>
+    <div id ="your_order" class ="modal">
+     <div class = "modal_content">
+        <button id="close">x</button>
+    </div>
+    </div>
+        
+        <script src="{{ url_for('static', filename='script.js') }}"></script>
+    </body>
+
+</html>

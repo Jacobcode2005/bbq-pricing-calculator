@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>New Order Process</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+<button id="new_return">Back to Index</button><br><br>
+<h1>Start your Order by entering the number of People</h1>
+<label for= "number_of_people">Number of People:</label>
+<input type="number"id= "number_of_people" name="number_of_people" min="1"><br><br>
+<label for= "meats"> Meats:</label>
+<select name="meats" id="meats">
+    <option value=""></option>
+   <!-- Flask uses Jinja to populate the meat and side dropdowns
+     with options retrieved from the SQLite database. -->
+    {% for meat in meats %}
+    <option value="{{meat }}">{{meat}}</option>
+    {% endfor %}
+</select>
+<label for ="sides"> Sides: </label>
+<select name="sides" id="sides">
+    <option value=""></option>
+   {% for side in sides%}
+   <option value="{{side }}">{{side}}</option>
+   {% endfor %}
+</select><br><br>
+<button id="submit_order">Submit Order</button>
+<h2>Selected Meats</h2><br><br>
+<div id="selected_meats"></div>
+<button id="reset_meats"> Reset Meats</button><br>
+<h2>Selected Sides</h2><br>
+<div id="selected_sides"></div>
+<button id="reset_sides">Reset Sides</button><br>
+<h2>Your Order</h2><br><br>
+<!-- Hidden receipt modal populated by JavaScript after an order is submitted. -->
+<div id ="your_order" class ="modal">
+    <div class = "modal_content">
+        <button id="close">x</button>
+    </div>
+</div>
+
+<script src="{{ url_for('static', filename='script.js') }}"></script>
+</body>
+</html>

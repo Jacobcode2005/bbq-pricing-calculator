@@ -21,7 +21,7 @@ def calculator(number_of_people, meat_type, oz_per_person):
         meat_total = total_cooked_pounds * meat_type["price_per_pound"]
         meat_total = round(meat_total, 2)
         return meat_total, raw_weight
-# rounds the number of half pansif there is a remander always round up
+# Allow up to four additional people before requiring another half pan.
 def side_round(number_of_people, number_of_people_per, ):
      remander= number_of_people % number_of_people_per
      number_of_half = (number_of_people - remander)/ number_of_people_per

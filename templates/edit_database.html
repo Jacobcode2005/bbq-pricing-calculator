@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Edit the Database</title>
+        <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    </head>
+    <body>
+        <button id="data_return">Back to Index</button><br><br>
+        <h1>Edit an existing meat or side</h1><br><br>
+        <label for ="meat_or_side">Meat or Side? </label>
+        <select id="meat_or_side">
+            <option value=" "> </option>
+            <option value="Meat">Meat</option>
+            <option value="Side">Side</option>
+        </select>
+        <label for="SideID_or_MeatID">Side name or Meat Name</label>
+        <select id="SideID_or_MeatID" disabled>
+            <option value=" "> </option>
+
+        </select>
+        <div id="database_data" 
+            data-meats= '{{meats | tojson}}';
+            data-sides
+             = '{{sides | tojson}}'>
+        </div>
+        <h1>Add a new meat or side</h1>
+
+        <h1>Delete a meat or side</h1>
+
+        <h1>Reset or make a new database</h1>
+        <script src="{{ url_for('static', filename='script.js') }}"></script>
+    </body>
+</html>

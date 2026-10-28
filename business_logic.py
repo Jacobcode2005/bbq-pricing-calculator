@@ -1,8 +1,10 @@
 import calculator_functions
 import data_functions
-#does all of the calculatons and adding of the sids to order 
-#is its own file because it did not fit into any pre established file
+
 def sides_logic(sides_data, number_of_people,order_number):
+    """Calculate side dish quantities and costs, save them to the order,
+    and return the combined side cost.
+    """
     total_side= 0
     for sides in sides_data:
             
